@@ -1,0 +1,88 @@
+---
+title: 'Radar Charts2'
+author: "[Orhan Aktaş](https://www.linkedin.com/in/orhanaktas/)"
+date: "10 June 2021"
+output:
+  html_document:
+    theme: flatly
+    df_print: paged
+    number_sections: true
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r libraries, include=FALSE}
+library(tidyverse)
+library(readxl)
+library(fmsb)
+```
+
+# Data import
+
+import scores
+
+```{r}
+scores <- read_excel("C:/Users/user/Desktop/herşey/R_projects/radar_charts2/data/gesi_scores.xlsx")
+```
+
+# Data Preparation for Radar Chart function
+
+The data should be organized as follow:
+
+-   The row 1 must contain the maximum values for each variable
+
+-   The row 2 must contain the minimum values for each variable
+
+-   Data for cases or individuals should be given starting from row 3
+
+-   The number of columns or variables must be more than 2.
+
+```{r}
+data<-scores %>% 
+  select(-1,-2,-20)
+
+data<-
+  rbind(rep(2, 17),rep(-2,17)) %>% 
+  as_tibble() %>% 
+  set_names(names(data)) %>% 
+  rbind(data)
+
+```
+
+## define helper function
+
+```{r}
+create_beautiful_radarchart <- function(data, color = "#00AFBB", 
+                                        vlabels = colnames(data), vlcex = 0.7,
+                                        caxislabels = NULL, title = NULL, ...){
+  radarchart(
+    data, axistype = 1,
+    # Customize the polygon
+    pcol = color, pfcol = scales::alpha(color, 0.5), plwd = 2, plty = 1,
+    # Customize the grid
+    cglcol = "grey", cglty = 1, cglwd = 0.8,
+    # Customize the axis
+    axislabcol = "grey", 
+    # Variable labels
+    vlcex = vlcex, vlabels = vlabels,
+    caxislabels = caxislabels, title = title, ...
+  )
+}
+```
+
+## **Basic radar plot**
+
+Plot the data for student 1
+
+```{r}
+first_row <- data %>% slice(1:3)
+create_beautiful_radarchart(first_row)
+```
